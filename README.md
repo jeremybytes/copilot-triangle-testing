@@ -22,6 +22,8 @@ Since it is no longer 1979, I asked for a C# method with 3 parameters (not "inte
 ## Process
 I got the initial function up pretty quickly (including checks for out-of-range parameters and invalid parameter sets). And I spent a lot longer on the test suite. GitHub Copilot created the initial tests, and then I keep asking for adjustments for edge cases, out of range parameters, and invalid parameter sets. In the end, the tests do not pass. Some of the parameter sets are invalid (when they are meant to be out-of-range examples). I tried getting GitHub Copilot to reorder things so that the proper exceptions are tested for based on the parameter sets, but it was beyond its abilities. Eventually, GitHub Copilot kept providing the same code over and over again.  
 
+*Note: In the initial request to create the function, GitHub Copilot used ```double``` for the parameters (rather than ```int``` as noted in the book). I left this since part of the testing scenarios in the book included non-integer values.*  
+
 ## End State  
 The tests do not pass, and the amount of time I spent trying to get GitHub Copilot to build what I wanted, I could have done it multiple times manually.  
 
