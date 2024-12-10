@@ -36,4 +36,86 @@ Anyway, the code is in this repository if you're interested in looking at the fi
 
 I'm putting this out as something to point to; I'm not looking for corrections or advice at this point. (If I personally know you and you want to chat about it, feel free to contact me through the normal channels.)  
 
+## Cursory Anaysis  
+*Update (a few days later)*  
+So, I couldn't leave the code alone, so I went back to take a look at some of the issue.
+
+1. The problem with using ```double```.  
+Let's start with a failing test:
+
+```csharp
+    [Theory]
+    [InlineData(1.1, 2.2, 3.3)] // Non-integer values
+    // other test cases removed
+    public void ClassifyTriangle_InvalidTriangles_ThrowsArgumentException(double side1, double side2, double side3)
+    {
+        // Arrange
+        var classifier = new TriangleClassifier();
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => classifier.ClassifyTriangle(side1, side2, side3));
+        Assert.Equal("The given sides do not form a valid triangle.", exception.Message);
+    }
+```
+
+This particular test makes sure that the side lengths form a valid triangle. Adding any 2 sides together needs to be greater than the 3rd side. So, for example, lengths of 1, 2, 3 would be invalid because 1 + 2 is not greater than 3.  
+
+At first glance, the test case above (1.1, 2.2, 3.3) seems okay: 1.1 + 2.2 is not greater than 3.3. But when we look at the actual test that runs (and fails), we see the problem:
+
+```
+TriangleTests.TriangleClassifierTests.ClassifyTriangle_InvalidTriangles_ThrowsArgumentException(side1: 1.1000000000000001, side2: 2.2000000000000002, side3: 3.2999999999999998)
+```
+
+Because of the imprecision of the ```double``` type, adding side1 and side2 is greater than side3, so it does not throw the expected exception.  
+
+One answer to this is to change the ```double``` types to ```decimal``` types. This would ensure that the values of 1.1, 2.2, and 3.3 are precise.  
+
+2. Incorrect Overflow Check  
+Another strange part of the code is checking for overflow values. Here's the generated code:  
+
+```csharp
+    // Check for potential overflow in addition
+    if (side1 > double.MaxValue - side2 || side1 > double.MaxValue - side3 || side2 > double.MaxValue - side3)
+    {
+        throw new ArgumentOutOfRangeException("Sides are too large.");
+    }
+```
+
+The generated comments says that it is checking for potential overflow in addition; however, the conditions do not reflect that. Instead, they use MaxValue with subtraction. This is just weird. This code would never detect an overflow.  
+
+3. Tests for Overflow Check  
+Even stranger than the code that checks for overflow are the test cases for that code:  
+
+```csharp
+    [Theory]
+    [InlineData(double.MaxValue / 2, double.MaxValue / 2, double.MaxValue / 2)] // Edge case: large double values
+    [InlineData(double.MaxValue / 2, double.MaxValue / 2, 1)] // Edge case: large double values with a small side
+    [InlineData(double.MaxValue / 2, 1, 1)] // Edge case: large double value with two small sides
+    [InlineData(double.MinValue, double.MinValue, double.MinValue)] // Edge case: minimum double values
+    [InlineData(double.MinValue, double.MinValue, -1)] // Edge case: minimum double values with a small negative side
+    [InlineData(double.MinValue, -1, -1)] // Edge case: minimum double value with two small negative sides
+    public void ClassifyTriangle_OverflowValues_ThrowsArgumentOutOfRangeException(double side1, double side2, double side3)
+    {
+        // Arrange
+        var classifier = new TriangleClassifier();
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(() => classifier.ClassifyTriangle(side1, side2, side3));
+        Assert.Equal("Sides are too large.", exception.ParamName);
+    }
+```
+
+Every one of these test cases fails. This was after I asked GitHub Copilot chat to fix the failing tests. It said OK and then updated the test cases to the ones shows above.  
+
+Looking with the first case (MaxValue / 2 for a 3 sides), This would not be expected to overflow double. In the valid triange check (noted previously), any 2 sides are added together. In theory, that means that adding any 2 of these sides would result in the MaxValue (i.e., not an overflow value). For this test case, no exception is thrown, so the test fails.  
+
+The test cases that use MinValue are invalid for this code. The code is checking for overflow (theoretically), but not for underflow. The test cases with MinValue all fail because the sides are less than or equal to zero (which is a separate check in the method). So these test cases will always fail because the wrong exception is thrown.  
+
+## Updated Summary  
+What really worries me about the code is that my cursory analysis only looks at the failing tests in the test suite. This has led me to find invalid test cases and also code that doesn't do what it thinks it is doing.  
+
+So what if I were to dig through all of the passing tests? I expect that I will find the same issues: invalid test cases that lead to code that doesn't do what it thinks it does.  
+
+And that's the problem. Without any trust at all in the code, this is a pretty useless excercise. The last thing I need as part of my development process is a random excrement generator.  
+
 ---
