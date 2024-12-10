@@ -38,7 +38,7 @@ I'm putting this out as something to point to; I'm not looking for corrections o
 
 ## Cursory Anaysis  
 *Update (a few days later)*  
-So, I couldn't leave the code alone, so I went back to take a look at some of the issue.
+So, I couldn't leave the code alone, so I went back to take a look at some of the issues.
 
 1. The problem with using ```double```.  
 Let's start with a failing test:
@@ -81,7 +81,7 @@ Another strange part of the code is checking for overflow values. Here's the gen
     }
 ```
 
-The generated comments says that it is checking for potential overflow in addition; however, the conditions do not reflect that. Instead, they use MaxValue with subtraction. This is just weird. This code would never detect an overflow.  
+The generated comment says that it is checking for potential overflow in addition; however, the conditions do not reflect that. Instead, they use MaxValue with subtraction. This is just weird. This code would not detect an overflow.  
 
 3. Tests for Overflow Check  
 Even stranger than the code that checks for overflow are the test cases for that code:  
@@ -107,15 +107,15 @@ Even stranger than the code that checks for overflow are the test cases for that
 
 Every one of these test cases fails. This was after I asked GitHub Copilot chat to fix the failing tests. It said OK and then updated the test cases to the ones shows above.  
 
-Looking with the first case (MaxValue / 2 for a 3 sides), This would not be expected to overflow double. In the valid triange check (noted previously), any 2 sides are added together. In theory, that means that adding any 2 of these sides would result in the MaxValue (i.e., not an overflow value). For this test case, no exception is thrown, so the test fails.  
+Looking at the first case (```MaxValue / 2``` for all 3 sides), This would not be expected to overflow double. In the valid triange check (noted previously), any 2 sides are added together. In theory, that means that adding any 2 of these sides would result in the MaxValue (i.e., not an overflow value). For this test case, no exception is thrown, so the test fails.  
 
-The test cases that use MinValue are invalid for this code. The code is checking for overflow (theoretically), but not for underflow. The test cases with MinValue all fail because the sides are less than or equal to zero (which is a separate check in the method). So these test cases will always fail because the wrong exception is thrown.  
+The test cases that use MinValue are completely invalid for this code. The code is checking for overflow (theoretically) but not for underflow. The test cases with MinValue all fail because the sides are less than or equal to zero (which is a separate check in the method). So these test cases will always fail because the wrong exception is thrown.  
 
 ## Updated Summary  
 What really worries me about the code is that my cursory analysis only looks at the failing tests in the test suite. This has led me to find invalid test cases and also code that doesn't do what it thinks it is doing.  
 
-So what if I were to dig through all of the passing tests? I expect that I will find the same issues: invalid test cases that lead to code that doesn't do what it thinks it does.  
+So what if I were to dig through all of the passing tests? (There are 36 of them.) I expect that I will find the same issues: invalid test cases that lead to code that doesn't do what it thinks it does.  
 
-And that's the problem. Without any trust at all in the code, this is a pretty useless excercise. The last thing I need as part of my development process is a random excrement generator.  
+And that's the problem. Without any trust at all in the code, this is pretty useless. The last thing I need as part of my development process is a random excrement generator.  
 
 ---
