@@ -124,7 +124,7 @@ So what if I were to dig through all of the passing tests? (There are 36 of them
 And that's the problem. Without any trust at all in the code, this is pretty useless. The last thing I need as part of my development process is a random excrement generator.  
 
 ## Another Update  
-Since I could not leave this alone, I decided to write the code using my normal methodology (TDD-lite for this type of code). I managed to hit all 14 of the use-cases described in *The Art of Software Testing*, and I am satisfied with the code.  
+Since I could not leave this alone, I decided to write the code using my normal methodology (TDD-lite for this type of code). I managed to hit all 14 of the use-cases described in *The Art of Software Testing*, and I am satisfied with the result.  
 
 Code: [/Jeremy-Generated/](./Jeremy-Generated/)  
 
