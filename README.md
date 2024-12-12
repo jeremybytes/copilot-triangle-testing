@@ -6,6 +6,11 @@ I failed miserably.
 
 In the end, I have a function that looks pretty close to what I was trying to get and a suite of unit tests that do not all pass.  
 
+*Update: In addition to the Copilot generated code, I took a shot at writing it with my usual methodology. I've moved the code into separate folders. The code I wrote meets the requirements outlined below.*  
+
+* GitHub Copilot generated: [/GitHub-Copilot-Chat-Generated/](./GitHub-Copilot-Chat-Generated/)  
+* Jeremy generated: [/Jeremy-Generated/](./Jeremy-Generated/)  
+
 ## Goal  
 The beginning of *The Art of Software Testing* has a self-assessment test to see how good you are at testing a function. Here is the text (from p. 1):  
 
@@ -111,11 +116,29 @@ Looking at the first case (```MaxValue / 2``` for all 3 sides), This would not b
 
 The test cases that use MinValue are completely invalid for this code. The code is checking for overflow (theoretically) but not for underflow. The test cases with MinValue all fail because the sides are less than or equal to zero (which is a separate check in the method). So these test cases will always fail because the wrong exception is thrown.  
 
-## Updated Summary  
+## Cusory Analysis Summary  
 What really worries me about the code is that my cursory analysis only looks at the failing tests in the test suite. This has led me to find invalid test cases and also code that doesn't do what it thinks it is doing.  
 
 So what if I were to dig through all of the passing tests? (There are 36 of them.) I expect that I will find the same issues: invalid test cases that lead to code that doesn't do what it thinks it does.  
 
 And that's the problem. Without any trust at all in the code, this is pretty useless. The last thing I need as part of my development process is a random excrement generator.  
+
+## Another Update  
+Since I could not leave this alone, I decided to write the code using my normal methodology (TDD-lite for this type of code). I managed to hit all 14 of the use-cases described in *The Art of Software Testing*, and I am satisfied with the code.  
+
+Code: [/Jeremy-Generated/](./Jeremy-Generated/)  
+
+Features:  
+* Basic classifier functionality (equilateral, isosceles, scalene)  
+* Less than or equal to 0 parameter checks  
+* Parameters too large checks (i.e., calculations that overflow the data type)  
+* Invalid triangle check (adding any 2 sides should be greater than the 3rd side)  
+* Works with non-integer values  
+
+Total time to write this code and the test cases was way less than I spent trying to get GitHub Copilot to cooperate. This isn't a surprise to me because I had spent time thinking through the use case while reading *The Art of Software Testing*.  
+
+At the same time, the functionality is trivial. More time is concerned with catching invalid parameter sets.  
+
+*BTW, while reviewing the GitHub Copilot generated code I found some futher concerns, but I think I may be done talking about that.*
 
 ---
