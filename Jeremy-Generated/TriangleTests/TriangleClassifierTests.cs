@@ -86,22 +86,15 @@ public class TriangleClassifierTests
         Assert.StartsWith("Side lengths do not form a triangle", exception.Message);
     }
 
-    private class OverflowValues : IEnumerable<object[]>
+    private class OverflowValues : List<object[]>
     {
-        List<object[]> data = [
-            [decimal.MaxValue, decimal.MaxValue, 1],
-            [1, decimal.MaxValue, decimal.MaxValue],
-            [decimal.MaxValue, 1, decimal.MaxValue],
-        ];
-
-        public IEnumerator<object[]> GetEnumerator()
+        public OverflowValues()
         {
-            return data.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            AddRange([
+                [decimal.MaxValue, decimal.MaxValue, 1],
+                [1, decimal.MaxValue, decimal.MaxValue],
+                [decimal.MaxValue, 1, decimal.MaxValue],
+            ]);
         }
     }
 
